@@ -83,15 +83,10 @@ class SettingsWindow:
         frame = ctk.CTkFrame(self._win, fg_color="transparent")
         frame.pack(fill="x", padx=20, pady=3)
 
-        label_text = model_info["label"]
-        if model_info["note"]:
-            label_text += f"  ({model_info['note']})"
-        ctk.CTkLabel(frame, text=label_text, anchor="w", text_color=CHARCOAL).pack(
-            side="left", padx=10, pady=6, expand=True, fill="x"
-        )
-
         from config import MODELS_DIR
         dest = MODELS_DIR / model_info["filename"]
+
+        # Pack right-side widgets first so they claim space before the label expands
         status_label = ctk.CTkLabel(frame, text="", width=80, text_color="gray")
         status_label.pack(side="right", padx=(0, 6))
 
@@ -108,6 +103,13 @@ class SettingsWindow:
                 command=lambda m=model_info, lbl=status_label: self._start_download(m, lbl),
             )
             btn.pack(side="right", padx=(0, 6), pady=4)
+
+        label_text = model_info["label"]
+        if model_info["note"]:
+            label_text += f"  ({model_info['note']})"
+        ctk.CTkLabel(frame, text=label_text, anchor="w", text_color=CHARCOAL).pack(
+            side="left", padx=10, pady=6, expand=True, fill="x"
+        )
 
     def _start_download(self, model_info: dict, status_label: ctk.CTkLabel) -> None:
         status_label.configure(text="Downloading...", text_color="gray")
