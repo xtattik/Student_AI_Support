@@ -17,8 +17,8 @@ class SettingsWindow:
 
         self._win = ctk.CTkToplevel()
         self._win.title("Settings — Student AI Support")
-        self._win.geometry("500x420")
-        self._win.resizable(False, False)
+        self._win.geometry("500x480")
+        self._win.resizable(False, True)
         self._win.protocol("WM_DELETE_WINDOW", self._close)
 
         header = ctk.CTkFrame(self._win, fg_color=TEAL, height=44, corner_radius=0)
