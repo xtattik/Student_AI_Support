@@ -37,9 +37,12 @@ Text:
 Questions and student answers:
 {qa_summary}
 
-For each question:
-1. State whether the student was correct or incorrect
-2. Give the correct answer
-3. Explain in 1-2 sentences why it is correct
+Go through each question one by one. For each:
+- Start with "Q1: Correct" or "Q1: Incorrect" (use the actual question number)
+- State the correct answer
+- Explain in 1-2 sentences why it is correct
 
-Be encouraging in tone."""
+After all three, write a final line in exactly this format:
+Score: X/3
+
+Only count a question as correct if the student's answer matched the right answer. Do not round up or encourage by inflating the score."""
