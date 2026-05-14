@@ -6,6 +6,7 @@ import hotkey_listener
 from clipboard_handler import get_selected_text
 from overlay import OverlayWindow
 from ui.result_window import ResultWindow
+from ui.test_window import TestWindow
 from ui.setup_window import SetupWindow
 from ui.settings_window import SettingsWindow
 from system_tray import TrayIcon
@@ -38,7 +39,10 @@ def _on_action(action: str) -> None:
     generator = complete(system_prompt, text)
 
     def _open():
-        win = ResultWindow(action, generator)
+        if action == "test_me":
+            win = TestWindow(source_text=text, generator=generator)
+        else:
+            win = ResultWindow(action, generator)
         win.show()
 
     _root.after(0, _open)

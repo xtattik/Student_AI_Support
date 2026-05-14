@@ -9,6 +9,8 @@ class SetupWindow:
     def __init__(self, on_complete: callable, on_error: callable):
         self._on_complete = on_complete
         self._on_error = on_error
+        self._done = False
+        self._error: Exception | None = None
 
     def show(self) -> None:
         self._win = ctk.CTk()
@@ -42,33 +44,47 @@ class SetupWindow:
         threading.Thread(target=self._download, daemon=True).start()
         self._win.mainloop()
 
+        # mainloop has exited — now safe to call callbacks outside Tk
+        if self._error:
+            self._on_error(self._error)
+        elif self._done:
+            self._on_complete()
+
     def _download(self) -> None:
         try:
             download_default(progress_callback=self._on_progress)
             self._win.after(0, self._finish)
         except Exception as e:
-            self._win.after(0, lambda: self._fail(e))
+            self._error = e
+            self._win.after(0, self._win.destroy)
 
     def _on_progress(self, downloaded: int, total: int) -> None:
-        if total > 0:
+        if total > 0 and self._win_alive():
             pct = downloaded / total
             mb_done = downloaded / 1_000_000
             mb_total = total / 1_000_000
-            self._win.after(0, lambda: self._update_ui(pct, mb_done, mb_total))
+            self._win.after(0, lambda p=pct, d=mb_done, t=mb_total: self._update_ui(p, d, t))
 
     def _update_ui(self, pct: float, mb_done: float, mb_total: float) -> None:
+        if not self._win_alive():
+            return
         self._progress.set(pct)
         self._status_label.configure(text=f"Downloading... {pct:.0%}")
         self._size_label.configure(text=f"{mb_done:.0f} MB / {mb_total:.0f} MB")
 
     def _finish(self) -> None:
+        if not self._win_alive():
+            return
+        self._done = True
         self._status_label.configure(text="Download complete!")
         self._progress.set(1)
-        self._win.after(800, lambda: (self._win.destroy(), self._on_complete()))
+        self._win.after(800, self._win.destroy)
 
-    def _fail(self, error: Exception) -> None:
-        self._win.destroy()
-        self._on_error(error)
+    def _win_alive(self) -> bool:
+        try:
+            return bool(self._win.winfo_exists())
+        except Exception:
+            return False
 
     def _on_cancel(self) -> None:
         import sys

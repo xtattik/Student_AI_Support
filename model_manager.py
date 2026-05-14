@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Callable
-from huggingface_hub import hf_hub_download
+import requests
+from huggingface_hub import hf_hub_url
 from config import MODELS_DIR, DEFAULT_MODEL_FILE, DEFAULT_MODEL_REPO, AVAILABLE_MODELS
 
 
@@ -28,25 +29,27 @@ def download_model(
     if dest.exists():
         return dest
 
-    class _ProgressHandler:
-        def __init__(self, cb):
-            self.cb = cb
-            self._downloaded = 0
+    url = hf_hub_url(repo_id=repo_id, filename=filename)
 
-        def __call__(self, downloaded: int, total: int):
-            if self.cb:
-                self.cb(downloaded, total)
+    tmp = dest.with_suffix(".part")
+    try:
+        with requests.get(url, stream=True, timeout=30) as r:
+            r.raise_for_status()
+            total = int(r.headers.get("content-length", 0))
+            downloaded = 0
+            with open(tmp, "wb") as f:
+                for chunk in r.iter_content(chunk_size=1024 * 256):
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    if progress_callback and total:
+                        progress_callback(downloaded, total)
+        tmp.rename(dest)
+    except Exception:
+        if tmp.exists():
+            tmp.unlink()
+        raise
 
-    handler = _ProgressHandler(progress_callback) if progress_callback else None
-
-    path = hf_hub_download(
-        repo_id=repo_id,
-        filename=filename,
-        local_dir=str(MODELS_DIR),
-        local_dir_use_symlinks=False,
-    )
-
-    return Path(path)
+    return dest
 
 
 def download_default(progress_callback: Callable[[int, int], None] | None = None) -> Path:

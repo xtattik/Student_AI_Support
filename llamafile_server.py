@@ -2,7 +2,6 @@ import subprocess
 import threading
 import time
 import requests
-from pathlib import Path
 from config import LLAMAFILE_HOST, MODELS_DIR, get_active_model, get_llamafile_exe
 
 _process: subprocess.Popen | None = None
@@ -23,19 +22,18 @@ def start(model_filename: str | None = None) -> None:
 
         cmd = [
             str(exe),
-            "--model", str(model),
+            "--server",
+            "-m", str(model),
             "--port", "8080",
             "--host", "127.0.0.1",
-            "--nobrowser",
-            "-ngl", "0",        # CPU only — no GPU assumption
-            "--ctx-size", "2048",
+            "-ngl", "0",
+            "-c", "2048",
         ]
 
         _process = subprocess.Popen(
             cmd,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            creationflags=subprocess.CREATE_NO_WINDOW if hasattr(subprocess, "CREATE_NO_WINDOW") else 0,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
         )
 
     _wait_until_ready()
@@ -66,10 +64,20 @@ def is_ready() -> bool:
         return False
 
 
-def _wait_until_ready(timeout: int = 60) -> None:
+def _wait_until_ready(timeout: int = 90) -> None:
     deadline = time.time() + timeout
     while time.time() < deadline:
+        # If the process has already exited, grab its output and raise immediately
+        if _process is not None and _process.poll() is not None:
+            output = ""
+            if _process.stdout:
+                output = _process.stdout.read().decode("utf-8", errors="replace")
+            raise RuntimeError(
+                f"llamafile exited unexpectedly (code {_process.returncode}).\n\n"
+                f"Output:\n{output or '(none)'}\n\n"
+                "On Windows, try right-clicking llamafile.exe, Properties > Unblock, then restart."
+            )
         if is_ready():
             return
         time.sleep(1)
-    raise TimeoutError("llamafile server did not start within 60 seconds.")
+    raise TimeoutError("llamafile server did not respond within 90 seconds.")
