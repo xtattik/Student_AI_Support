@@ -1,9 +1,9 @@
 import threading
 import customtkinter as ctk
 from model_manager import list_local_models, download_model
-from config import AVAILABLE_MODELS, get_active_model, set_active_model
+from config import AVAILABLE_MODELS, get_active_model
 from theme import TEAL, TEAL_HOVER, LIME_GREEN, CHARCOAL, WHITE
-import llamafile_server
+import llm_engine
 
 
 class SettingsWindow:
@@ -122,8 +122,7 @@ class SettingsWindow:
         threading.Thread(target=_run, daemon=True).start()
 
     def _on_model_select(self, value: str) -> None:
-        set_active_model(value)
-        threading.Thread(target=llamafile_server.restart, kwargs={"model_filename": value}, daemon=True).start()
+        llm_engine.switch_model(value)
 
     def _close(self) -> None:
         if self._win:

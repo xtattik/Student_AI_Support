@@ -19,11 +19,11 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt pyinstaller
-
-      - name: Download llamafile binary
-        run: python download_llamafile.py
+      - name: Install dependencies (CPU build of llama-cpp-python)
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+          pip install pyinstaller
 
       - name: Build with PyInstaller
         run: pyinstaller student_ai.spec
@@ -50,11 +50,13 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt pyinstaller
-
-      - name: Download llamafile binary
-        run: python download_llamafile.py
+      - name: Install dependencies (Metal build of llama-cpp-python)
+        run: |
+          pip install --upgrade pip
+          # Install everything except llama-cpp-python first
+          pip install customtkinter pynput pyperclip pystray Pillow requests huggingface_hub pyinstaller
+          # Compile llama-cpp-python with Metal GPU support
+          CMAKE_ARGS="-DGGML_METAL=on" pip install llama-cpp-python --no-binary llama-cpp-python
 
       - name: Build with PyInstaller
         run: pyinstaller student_ai.spec

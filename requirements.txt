@@ -5,3 +5,8 @@ pystray>=0.19.4
 Pillow>=10.0.0
 requests>=2.31.0
 huggingface_hub>=0.20.0
+llama-cpp-python>=0.3.0
+
+# NOTE: on macOS (Apple Silicon), install with Metal GPU support instead:
+#   CMAKE_ARGS="-DGGML_METAL=on" pip install llama-cpp-python
+# This is handled automatically in the GitHub Actions build.

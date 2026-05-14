@@ -1,24 +1,26 @@
-import sys
 import platform
 from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs
 
 IS_WINDOWS = platform.system() == "Windows"
 IS_MAC     = platform.system() == "Darwin"
 
-llamafile_bin = ("bin/llamafile.exe", "bin") if IS_WINDOWS else ("bin/llamafile", "bin")
-
 a = Analysis(
     ["app.py"],
     pathex=["."],
-    binaries=[llamafile_bin],
+    binaries=[
+        *collect_dynamic_libs("llama_cpp"),
+    ],
     datas=[
         ("assets", "assets"),
         *collect_data_files("customtkinter"),
+        *collect_data_files("llama_cpp"),
     ],
     hiddenimports=[
-        "pystray._win32"   if IS_WINDOWS else "pystray._darwin",
+        "llama_cpp",
+        "llama_cpp.llama_cpp",
+        "llama_cpp.llama_types",
+        "pystray._win32" if IS_WINDOWS else "pystray._darwin",
         "PIL._tkinter_finder",
-        "customtkinter",
     ],
     hookspath=[],
     noarchive=False,
@@ -44,7 +46,6 @@ coll = COLLECT(
     name="StudentAI",
 )
 
-# macOS: also wrap in a .app bundle
 if IS_MAC:
     app = BUNDLE(
         coll,

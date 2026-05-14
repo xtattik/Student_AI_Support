@@ -1,7 +1,6 @@
 import sys
-import threading
 import customtkinter as ctk
-import llamafile_server
+import llm_engine
 import hotkey_listener
 from clipboard_handler import get_selected_text
 from overlay import OverlayWindow
@@ -28,15 +27,13 @@ def _get_prompt(action: str) -> str:
 
 
 def _on_action(action: str) -> None:
-    from llm_client import complete
-
     text = get_selected_text()
     if not text:
         _show_error("No text selected", "Please highlight some text before using the hotkey.")
         return
 
     system_prompt = _get_prompt(action)
-    generator = complete(system_prompt, text)
+    generator = llm_engine.complete(system_prompt, text)
 
     def _open():
         if action == "test_me":
@@ -79,21 +76,14 @@ def _launch_app() -> None:
 
     hotkey_listener.start(_on_hotkey)
 
-    threading.Thread(target=_start_server, daemon=True).start()
+    # Pre-load the model in the background so first response is faster
+    llm_engine.preload()
 
     _root.mainloop()
 
 
-def _start_server() -> None:
-    try:
-        llamafile_server.start()
-    except Exception as e:
-        _show_error("Server Error", f"Could not start AI engine:\n{e}")
-
-
 def _quit() -> None:
     hotkey_listener.stop()
-    llamafile_server.stop()
     _root.after(0, _root.quit)
 
 

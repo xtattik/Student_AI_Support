@@ -12,7 +12,7 @@ build/
 # Models — too large for git
 models/
 
-# Binaries — downloaded separately via download_llamafile.py
+# llamafile binaries (no longer used)
 bin/*.exe
 bin/llamafile
 
