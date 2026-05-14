@@ -1,8 +1,11 @@
 import subprocess
 import threading
 import time
+import platform
 import requests
 from config import LLAMAFILE_HOST, MODELS_DIR, get_active_model, get_llamafile_exe
+
+_WINDOWS = platform.system() == "Windows"
 
 _process: subprocess.Popen | None = None
 _lock = threading.Lock()
@@ -30,11 +33,11 @@ def start(model_filename: str | None = None) -> None:
             "-c", "2048",
         ]
 
-        _process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
+        kwargs = dict(stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if _WINDOWS:
+            kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+
+        _process = subprocess.Popen(cmd, **kwargs)
 
     _wait_until_ready()
 

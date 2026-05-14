@@ -12,7 +12,7 @@ CHARCOAL    = "#2C2C2C"
 WHITE       = "#FFFFFF"
 OFF_WHITE   = "#F4F7F8"
 
-ASSETS_DIR = Path(__file__).parent / "assets"
+from config import ASSETS_DIR
 
 
 def load_logo(size: tuple[int, int]) -> ctk.CTkImage:

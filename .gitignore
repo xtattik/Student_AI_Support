@@ -19,7 +19,7 @@ bin/llamafile
 # PyInstaller output
 dist/
 build/
-*.spec
+# *.spec intentionally NOT ignored — student_ai.spec is tracked
 
 # Config with local paths
 config.json

@@ -1,10 +1,21 @@
 import json
-import os
+import sys
+import platform
 from pathlib import Path
 
-BASE_DIR = Path(__file__).parent
-MODELS_DIR = BASE_DIR / "models"
-BIN_DIR = BASE_DIR / "bin"
+# When frozen by PyInstaller, the exe lives in a known folder.
+# User data (models, config.json) lives next to the exe.
+# Bundled read-only assets (logo, bin/) are in sys._MEIPASS.
+if getattr(sys, "frozen", False):
+    BASE_DIR   = Path(sys.executable).parent   # writable — models, config.json
+    BUNDLE_DIR = Path(sys._MEIPASS)            # read-only — assets, bin
+else:
+    BASE_DIR   = Path(__file__).parent
+    BUNDLE_DIR = Path(__file__).parent
+
+MODELS_DIR  = BASE_DIR / "models"
+BIN_DIR     = BUNDLE_DIR / "bin"
+ASSETS_DIR  = BUNDLE_DIR / "assets"
 CONFIG_FILE = BASE_DIR / "config.json"
 
 LLAMAFILE_PORT = 8080
@@ -36,6 +47,8 @@ AVAILABLE_MODELS = [
 
 HOTKEY = "<ctrl>+<shift>+a"
 
+_EXE_NAME = "llamafile.exe" if platform.system() == "Windows" else "llamafile"
+
 
 def load_config() -> dict:
     if CONFIG_FILE.exists():
@@ -60,11 +73,10 @@ def set_active_model(filename: str) -> None:
 
 
 def get_llamafile_exe() -> Path:
-    exe = BIN_DIR / "llamafile.exe"
+    exe = BIN_DIR / _EXE_NAME
     if not exe.exists():
         raise FileNotFoundError(
-            f"llamafile.exe not found at {exe}\n"
-            "Download it from https://github.com/Mozilla-Ocho/llamafile/releases "
-            "and place it in the bin/ folder."
+            f"llamafile binary not found at {exe}\n"
+            "Run download_llamafile.py to fetch it."
         )
     return exe
