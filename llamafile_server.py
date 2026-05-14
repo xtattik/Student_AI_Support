@@ -5,7 +5,9 @@ import platform
 import requests
 from config import LLAMAFILE_HOST, MODELS_DIR, get_active_model, get_llamafile_exe
 
-_WINDOWS = platform.system() == "Windows"
+_WINDOWS        = platform.system() == "Windows"
+_APPLE_SILICON  = platform.system() == "Darwin" and platform.machine() == "arm64"
+_GPU_LAYERS     = "99" if _APPLE_SILICON else "0"  # Metal on M-series, CPU elsewhere
 
 _process: subprocess.Popen | None = None
 _lock = threading.Lock()
@@ -29,7 +31,7 @@ def start(model_filename: str | None = None) -> None:
             "-m", str(model),
             "--port", "8080",
             "--host", "127.0.0.1",
-            "-ngl", "0",
+            "-ngl", _GPU_LAYERS,
             "-c", "2048",
         ]
 
