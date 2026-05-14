@@ -2,10 +2,10 @@ import re
 import threading
 import customtkinter as ctk
 from typing import Generator
+from theme import TEAL, TEAL_HOVER, LIME_GREEN, CHARCOAL, WHITE
 
 
 def parse_questions(text: str) -> list[dict]:
-    """Parse LLM output into list of {question, options: [A..D]} dicts."""
     questions = []
     blocks = re.split(r'\n(?=\d+\.)', text.strip())
     for block in blocks:
@@ -36,14 +36,25 @@ class TestWindow:
     def show(self) -> None:
         self._win = ctk.CTkToplevel()
         self._win.title("Test Yourself")
-        self._win.geometry("620x200")
+        self._win.geometry("640x200")
         self._win.attributes("-topmost", True)
         self._win.resizable(True, True)
+
+        header = ctk.CTkFrame(self._win, fg_color=TEAL, height=44, corner_radius=0)
+        header.pack(fill="x")
+        header.pack_propagate(False)
+        ctk.CTkLabel(
+            header,
+            text="Test Yourself",
+            font=ctk.CTkFont(size=15, weight="bold"),
+            text_color=WHITE,
+        ).pack(side="left", padx=16, pady=10)
 
         self._loading = ctk.CTkLabel(
             self._win,
             text="Generating questions...",
             font=ctk.CTkFont(size=14),
+            text_color=CHARCOAL,
         )
         self._loading.pack(expand=True)
 
@@ -62,7 +73,7 @@ class TestWindow:
 
     def _render_questions(self, questions: list[dict]) -> None:
         self._loading.destroy()
-        self._win.geometry("680x520")
+        self._win.geometry("680x540")
         self._answer_vars = []
 
         scroll = ctk.CTkScrollableFrame(self._win)
@@ -73,6 +84,7 @@ class TestWindow:
                 scroll,
                 text=f"Q{i + 1}. {q['question']}",
                 font=ctk.CTkFont(size=13, weight="bold"),
+                text_color=TEAL,
                 wraplength=600,
                 justify="left",
                 anchor="w",
@@ -88,6 +100,8 @@ class TestWindow:
                     variable=var,
                     value=letter,
                     font=ctk.CTkFont(size=12),
+                    fg_color=TEAL,
+                    hover_color=TEAL_HOVER,
                 ).pack(anchor="w", padx=20, pady=2)
 
         self._questions = questions
@@ -95,6 +109,9 @@ class TestWindow:
         self._check_btn = ctk.CTkButton(
             self._win,
             text="Check my answers",
+            fg_color=TEAL,
+            hover_color=TEAL_HOVER,
+            text_color=WHITE,
             command=self._check_answers,
         )
         self._check_btn.pack(pady=12)
@@ -113,12 +130,7 @@ class TestWindow:
             qa_lines.append(f"Q{i+1}: {q['question']}\nStudent answered: {ans}) {option_text}")
 
         qa_summary = "\n\n".join(qa_lines)
-
-        threading.Thread(
-            target=self._run_check,
-            args=(qa_summary,),
-            daemon=True,
-        ).start()
+        threading.Thread(target=self._run_check, args=(qa_summary,), daemon=True).start()
 
     def _run_check(self, qa_summary: str) -> None:
         from llm_client import complete
@@ -128,7 +140,6 @@ class TestWindow:
             source_text=self._source_text[:2000],
             qa_summary=qa_summary,
         )
-
         try:
             result = "".join(complete(system_prompt="You are a helpful tutor.", user_text=prompt))
             self._win.after(0, lambda: self._show_feedback(result))
@@ -138,21 +149,36 @@ class TestWindow:
     def _show_feedback(self, text: str) -> None:
         self._check_btn.pack_forget()
 
-        feedback_box = ctk.CTkTextbox(self._win, wrap="word", font=ctk.CTkFont(size=13), height=160)
+        # Colour each result line based on correct/incorrect keywords
+        feedback_box = ctk.CTkTextbox(self._win, wrap="word", font=ctk.CTkFont(size=13), height=180)
         feedback_box.pack(fill="x", padx=16, pady=(0, 4))
         feedback_box.insert("end", text)
         feedback_box.configure(state="disabled")
 
-        ctk.CTkButton(self._win, text="Close", command=self._win.destroy).pack(pady=(0, 12))
+        ctk.CTkButton(
+            self._win,
+            text="Close",
+            fg_color=TEAL,
+            hover_color=TEAL_HOVER,
+            text_color=WHITE,
+            command=self._win.destroy,
+        ).pack(pady=(0, 12))
 
     def _show_raw(self, text: str) -> None:
         self._loading.destroy()
-        self._win.geometry("620x420")
+        self._win.geometry("640x440")
         box = ctk.CTkTextbox(self._win, wrap="word", font=ctk.CTkFont(size=13))
         box.pack(fill="both", expand=True, padx=16, pady=16)
         box.insert("end", text)
         box.configure(state="disabled")
-        ctk.CTkButton(self._win, text="Close", command=self._win.destroy).pack(pady=(0, 12))
+        ctk.CTkButton(
+            self._win,
+            text="Close",
+            fg_color=TEAL,
+            hover_color=TEAL_HOVER,
+            text_color=WHITE,
+            command=self._win.destroy,
+        ).pack(pady=(0, 12))
 
     def _show_status(self, msg: str, colour: str = "gray") -> None:
         if hasattr(self, "_status_label"):

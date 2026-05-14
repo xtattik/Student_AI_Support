@@ -1,11 +1,18 @@
 import threading
 import customtkinter as ctk
 from typing import Generator
+from theme import TEAL, TEAL_HOVER, CHARCOAL, WHITE
 
 ACTION_LABELS = {
     "explain": "Explanation",
     "summarise": "Summary",
     "test_me": "Test Questions",
+}
+
+ACTION_COLOURS = {
+    "explain":   TEAL,
+    "summarise": TEAL,
+    "test_me":   TEAL,
 }
 
 
@@ -18,23 +25,33 @@ class ResultWindow:
     def show(self) -> None:
         self._win = ctk.CTkToplevel()
         self._win.title(ACTION_LABELS.get(self._action, "Result"))
-        self._win.geometry("600x450")
+        self._win.geometry("620x460")
         self._win.attributes("-topmost", True)
         self._win.resizable(True, True)
 
-        header = ctk.CTkLabel(
-            self._win,
+        # Coloured header strip
+        header = ctk.CTkFrame(self._win, fg_color=TEAL, height=44, corner_radius=0)
+        header.pack(fill="x")
+        header.pack_propagate(False)
+        ctk.CTkLabel(
+            header,
             text=ACTION_LABELS.get(self._action, "Result"),
-            font=ctk.CTkFont(size=16, weight="bold"),
-        )
-        header.pack(padx=16, pady=(16, 8), anchor="w")
+            font=ctk.CTkFont(size=15, weight="bold"),
+            text_color=WHITE,
+        ).pack(side="left", padx=16, pady=10)
 
         self._textbox = ctk.CTkTextbox(self._win, wrap="word", font=ctk.CTkFont(size=13))
-        self._textbox.pack(fill="both", expand=True, padx=16, pady=(0, 8))
+        self._textbox.pack(fill="both", expand=True, padx=16, pady=(12, 8))
         self._textbox.configure(state="disabled")
 
-        close_btn = ctk.CTkButton(self._win, text="Close", command=self._win.destroy)
-        close_btn.pack(pady=(0, 16))
+        ctk.CTkButton(
+            self._win,
+            text="Close",
+            fg_color=TEAL,
+            hover_color=TEAL_HOVER,
+            text_color=WHITE,
+            command=self._win.destroy,
+        ).pack(pady=(0, 16))
 
         threading.Thread(target=self._stream_text, daemon=True).start()
 

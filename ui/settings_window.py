@@ -1,7 +1,8 @@
 import threading
 import customtkinter as ctk
-from model_manager import list_local_models, download_model, get_model_info
+from model_manager import list_local_models, download_model
 from config import AVAILABLE_MODELS, get_active_model, set_active_model
+from theme import TEAL, TEAL_HOVER, LIME_GREEN, CHARCOAL, WHITE
 import llamafile_server
 
 
@@ -16,15 +17,26 @@ class SettingsWindow:
 
         self._win = ctk.CTkToplevel()
         self._win.title("Settings — Student AI Support")
-        self._win.geometry("500x400")
+        self._win.geometry("500x420")
         self._win.resizable(False, False)
         self._win.protocol("WM_DELETE_WINDOW", self._close)
 
+        header = ctk.CTkFrame(self._win, fg_color=TEAL, height=44, corner_radius=0)
+        header.pack(fill="x")
+        header.pack_propagate(False)
+        ctk.CTkLabel(
+            header,
+            text="Settings",
+            font=ctk.CTkFont(size=15, weight="bold"),
+            text_color=WHITE,
+        ).pack(side="left", padx=16, pady=10)
+
         ctk.CTkLabel(
             self._win,
-            text="AI Model",
-            font=ctk.CTkFont(size=15, weight="bold"),
-        ).pack(padx=20, pady=(20, 6), anchor="w")
+            text="Active Model",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            text_color=TEAL,
+        ).pack(padx=20, pady=(16, 4), anchor="w")
 
         ctk.CTkLabel(
             self._win,
@@ -41,54 +53,71 @@ class SettingsWindow:
             values=local or ["No models downloaded"],
             variable=self._model_var,
             command=self._on_model_select,
+            fg_color=TEAL,
+            button_color=TEAL_HOVER,
+            button_hover_color=TEAL_HOVER,
+            text_color=WHITE,
         )
         dropdown.pack(padx=20, pady=(8, 16), anchor="w")
 
         ctk.CTkLabel(
             self._win,
-            text="Download models",
-            font=ctk.CTkFont(size=15, weight="bold"),
+            text="Download Models",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            text_color=TEAL,
         ).pack(padx=20, pady=(0, 6), anchor="w")
 
         for m in AVAILABLE_MODELS:
             self._model_row(m)
 
-        ctk.CTkButton(self._win, text="Close", command=self._close).pack(pady=20)
+        ctk.CTkButton(
+            self._win,
+            text="Close",
+            fg_color=TEAL,
+            hover_color=TEAL_HOVER,
+            text_color=WHITE,
+            command=self._close,
+        ).pack(pady=16)
 
     def _model_row(self, model_info: dict) -> None:
-        frame = ctk.CTkFrame(self._win)
+        frame = ctk.CTkFrame(self._win, fg_color="transparent")
         frame.pack(fill="x", padx=20, pady=3)
 
         label_text = model_info["label"]
         if model_info["note"]:
             label_text += f"  ({model_info['note']})"
-        ctk.CTkLabel(frame, text=label_text, anchor="w").pack(side="left", padx=10, pady=6, expand=True, fill="x")
-
-        status_label = ctk.CTkLabel(frame, text="", width=80, text_color="gray")
-        status_label.pack(side="right", padx=(0, 6))
+        ctk.CTkLabel(frame, text=label_text, anchor="w", text_color=CHARCOAL).pack(
+            side="left", padx=10, pady=6, expand=True, fill="x"
+        )
 
         from config import MODELS_DIR
         dest = MODELS_DIR / model_info["filename"]
+        status_label = ctk.CTkLabel(frame, text="", width=80, text_color="gray")
+        status_label.pack(side="right", padx=(0, 6))
+
         if dest.exists():
-            status_label.configure(text="Downloaded")
+            status_label.configure(text="Downloaded", text_color=LIME_GREEN)
         else:
             btn = ctk.CTkButton(
                 frame,
                 text="Download",
                 width=90,
+                fg_color=TEAL,
+                hover_color=TEAL_HOVER,
+                text_color=WHITE,
                 command=lambda m=model_info, lbl=status_label: self._start_download(m, lbl),
             )
             btn.pack(side="right", padx=(0, 6), pady=4)
 
     def _start_download(self, model_info: dict, status_label: ctk.CTkLabel) -> None:
-        status_label.configure(text="Downloading...")
+        status_label.configure(text="Downloading...", text_color="gray")
 
         def _run():
             try:
                 download_model(model_info["repo"], model_info["filename"])
-                status_label.configure(text="Downloaded")
-            except Exception as e:
-                status_label.configure(text="Failed")
+                status_label.configure(text="Downloaded", text_color=LIME_GREEN)
+            except Exception:
+                status_label.configure(text="Failed", text_color="red")
 
         threading.Thread(target=_run, daemon=True).start()
 

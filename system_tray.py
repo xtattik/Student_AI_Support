@@ -1,13 +1,6 @@
 import threading
-from PIL import Image, ImageDraw
 import pystray
-
-
-def _make_icon() -> Image.Image:
-    img = Image.new("RGB", (64, 64), color=(30, 100, 200))
-    d = ImageDraw.Draw(img)
-    d.text((18, 18), "AI", fill=(255, 255, 255))
-    return img
+from theme import load_logo_pil
 
 
 class TrayIcon:
@@ -17,6 +10,13 @@ class TrayIcon:
         self._icon: pystray.Icon | None = None
 
     def start(self) -> None:
+        try:
+            img = load_logo_pil((64, 64))
+        except Exception:
+            from PIL import Image, ImageDraw
+            img = Image.new("RGB", (64, 64), color=(13, 107, 122))
+            ImageDraw.Draw(img).text((18, 18), "AI", fill=(255, 255, 255))
+
         menu = pystray.Menu(
             pystray.MenuItem("Settings", lambda: self._on_settings()),
             pystray.Menu.SEPARATOR,
@@ -24,7 +24,7 @@ class TrayIcon:
         )
         self._icon = pystray.Icon(
             "StudentAI",
-            _make_icon(),
+            img,
             "Student AI Support\nCtrl+Shift+A to use",
             menu,
         )
