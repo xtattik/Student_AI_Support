@@ -1,7 +1,7 @@
 import threading
 import customtkinter as ctk
 from model_manager import list_local_models, download_model
-from config import AVAILABLE_MODELS, get_active_model
+from config import AVAILABLE_MODELS, get_active_model, is_junior_mode, set_junior_mode
 from theme import TEAL, TEAL_HOVER, LIME_GREEN, CHARCOAL, WHITE
 import llm_engine
 
@@ -60,6 +60,30 @@ class SettingsWindow:
         )
         dropdown.pack(padx=20, pady=(8, 16), anchor="w")
 
+        # ── Mode toggle ──────────────────────────────────────────────
+        ctk.CTkLabel(
+            self._win,
+            text="Language Mode",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            text_color=TEAL,
+        ).pack(padx=20, pady=(4, 2), anchor="w")
+
+        mode_frame = ctk.CTkFrame(self._win, fg_color="transparent")
+        mode_frame.pack(fill="x", padx=20, pady=(0, 12))
+
+        self._junior_var = ctk.BooleanVar(value=is_junior_mode())
+        ctk.CTkSwitch(
+            mode_frame,
+            text="Junior mode  (simpler language, ages 9–10)",
+            variable=self._junior_var,
+            onvalue=True,
+            offvalue=False,
+            fg_color=TEAL,
+            progress_color=TEAL,
+            command=lambda: set_junior_mode(self._junior_var.get()),
+        ).pack(side="left", padx=10, pady=4)
+
+        # ── Download models ──────────────────────────────────────────
         ctk.CTkLabel(
             self._win,
             text="Download Models",

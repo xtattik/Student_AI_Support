@@ -27,9 +27,10 @@ def parse_questions(text: str) -> list[dict]:
 
 
 class TestWindow:
-    def __init__(self, source_text: str, generator: Generator[str, None, None]):
+    def __init__(self, source_text: str, generator: Generator[str, None, None], check_prompt: str | None = None):
         self._source_text = source_text
         self._generator = generator
+        self._check_prompt = check_prompt
         self._win: ctk.CTkToplevel | None = None
         self._answer_vars: list[ctk.StringVar] = []
 
@@ -136,7 +137,8 @@ class TestWindow:
         from llm_client import complete
         from prompts import CHECK_ANSWERS
 
-        prompt = CHECK_ANSWERS.format(
+        template = self._check_prompt or CHECK_ANSWERS
+        prompt = template.format(
             source_text=self._source_text[:2000],
             qa_summary=qa_summary,
         )

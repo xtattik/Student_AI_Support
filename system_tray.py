@@ -1,6 +1,7 @@
 import threading
 import pystray
 from theme import load_logo_pil
+from config import is_junior_mode, set_junior_mode
 
 
 class TrayIcon:
@@ -18,6 +19,12 @@ class TrayIcon:
             ImageDraw.Draw(img).text((18, 18), "AI", fill=(255, 255, 255))
 
         menu = pystray.Menu(
+            pystray.MenuItem(
+                "Junior mode",
+                self._toggle_junior,
+                checked=lambda _: is_junior_mode(),
+            ),
+            pystray.Menu.SEPARATOR,
             pystray.MenuItem("Settings", lambda: self._on_settings()),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("Quit", lambda: self._quit()),
@@ -29,6 +36,9 @@ class TrayIcon:
             menu,
         )
         threading.Thread(target=self._icon.run, daemon=True).start()
+
+    def _toggle_junior(self) -> None:
+        set_junior_mode(not is_junior_mode())
 
     def _quit(self) -> None:
         if self._icon:

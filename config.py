@@ -72,6 +72,16 @@ def set_active_model(filename: str) -> None:
     save_config(cfg)
 
 
+def is_junior_mode() -> bool:
+    return load_config().get("junior_mode", False)
+
+
+def set_junior_mode(value: bool) -> None:
+    cfg = load_config()
+    cfg["junior_mode"] = value
+    save_config(cfg)
+
+
 def get_llamafile_exe() -> Path:
     exe = BIN_DIR / _EXE_NAME
     if not exe.exists():

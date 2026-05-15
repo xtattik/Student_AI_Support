@@ -10,7 +10,8 @@ from ui.setup_window import SetupWindow
 from ui.settings_window import SettingsWindow
 from system_tray import TrayIcon
 from model_manager import has_any_model
-import prompts
+from prompts import get_prompts
+from config import is_junior_mode
 
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
@@ -18,26 +19,23 @@ ctk.set_default_color_theme("blue")
 _settings_window = SettingsWindow()
 
 
-def _get_prompt(action: str) -> str:
-    return {
-        "explain": prompts.EXPLAIN,
-        "summarise": prompts.SUMMARISE,
-        "test_me": prompts.TEST_ME,
-    }[action]
-
-
 def _on_action(action: str) -> None:
-    text = get_selected_text()
+    text, used_fallback = get_selected_text()
     if not text:
-        _show_error("No text selected", "Please highlight some text before using the hotkey.")
+        _show_error(
+            "No text selected",
+            "Please highlight some text before using the hotkey.\n\n"
+            "Tip: In Adobe Reader or PDF viewers, copy the text with "
+            "Ctrl+C first, then press Ctrl+Shift+A."
+        )
         return
 
-    system_prompt = _get_prompt(action)
-    generator = llm_engine.complete(system_prompt, text)
+    p = get_prompts(junior=is_junior_mode())
+    generator = llm_engine.complete(p[action], text)
 
     def _open():
         if action == "test_me":
-            win = TestWindow(source_text=text, generator=generator)
+            win = TestWindow(source_text=text, generator=generator, check_prompt=p["check"])
         else:
             win = ResultWindow(action, generator)
         win.show()
