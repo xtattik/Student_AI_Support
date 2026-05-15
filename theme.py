@@ -22,3 +22,15 @@ def load_logo(size: tuple[int, int]) -> ctk.CTkImage:
 
 def load_logo_pil(size: tuple[int, int]) -> Image.Image:
     return Image.open(ASSETS_DIR / "logo.png").convert("RGBA").resize(size, Image.LANCZOS)
+
+
+def set_window_icon(win) -> None:
+    """Apply the school logo as the window title-bar / taskbar icon."""
+    try:
+        from PIL import ImageTk
+        img = Image.open(ASSETS_DIR / "logo.png").convert("RGBA").resize((32, 32), Image.LANCZOS)
+        photo = ImageTk.PhotoImage(img)
+        win.iconphoto(False, photo)
+        win._icon_ref = photo  # keep a reference so GC doesn't destroy it
+    except Exception:
+        pass  # icon is purely cosmetic — never crash over it

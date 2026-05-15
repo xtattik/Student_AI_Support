@@ -14,6 +14,8 @@ from system_tray import TrayIcon
 from model_manager import has_any_model
 from prompts import get_prompts
 from config import BASE_DIR, is_junior_mode
+from theme import set_window_icon
+import single_instance
 
 _LOG = BASE_DIR / "error.log"
 
@@ -76,6 +78,7 @@ def _show_error(title: str, message: str) -> None:
         win.title(title)
         win.geometry("360x140")
         win.attributes("-topmost", True)
+        set_window_icon(win)
         ctk.CTkLabel(win, text=message, wraplength=320, justify="center").pack(expand=True)
         ctk.CTkButton(win, text="OK", command=win.destroy).pack(pady=(0, 16))
     _root.after(0, _open)
@@ -109,6 +112,21 @@ def _quit() -> None:
 
 
 def main() -> None:
+    if not single_instance.acquire():
+        # Another copy is already in the system tray — just bail out silently.
+        # A small notice window would be nicer but Tk isn't initialised yet,
+        # so keep it simple.
+        import tkinter as tk
+        import tkinter.messagebox as mb
+        _r = tk.Tk()
+        _r.withdraw()
+        mb.showinfo(
+            "Already running",
+            "Student AI Support is already running.\n\nFind it in the system tray.",
+        )
+        _r.destroy()
+        sys.exit(0)
+
     if not has_any_model():
         setup = SetupWindow(
             on_complete=_launch_app,
