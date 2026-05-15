@@ -78,7 +78,7 @@ def _show_error(title: str, message: str) -> None:
         win.title(title)
         win.geometry("360x140")
         win.attributes("-topmost", True)
-        set_window_icon(win)
+        win.after(200, lambda: set_window_icon(win))
         ctk.CTkLabel(win, text=message, wraplength=320, justify="center").pack(expand=True)
         ctk.CTkButton(win, text="OK", command=win.destroy).pack(pady=(0, 16))
     _root.after(0, _open)

@@ -40,7 +40,7 @@ class TestWindow:
         self._win.geometry("640x200")
         self._win.attributes("-topmost", True)
         self._win.resizable(True, True)
-        set_window_icon(self._win)
+        self._win.after(200, lambda: set_window_icon(self._win))
 
         header = ctk.CTkFrame(self._win, fg_color=TEAL, height=44, corner_radius=0)
         header.pack(fill="x")

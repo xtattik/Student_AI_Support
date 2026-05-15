@@ -28,7 +28,7 @@ class ResultWindow:
         self._win.geometry("620x460")
         self._win.attributes("-topmost", True)
         self._win.resizable(True, True)
-        set_window_icon(self._win)
+        self._win.after(200, lambda: set_window_icon(self._win))
 
         # Coloured header strip
         header = ctk.CTkFrame(self._win, fg_color=TEAL, height=44, corner_radius=0)
