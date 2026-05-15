@@ -5,6 +5,14 @@ from pynput.keyboard import Key, Controller
 _keyboard = Controller()
 
 
+def _safe_get_clipboard() -> str:
+    """Return current clipboard text, or empty string if unavailable."""
+    try:
+        return pyperclip.paste() or ""
+    except Exception:
+        return ""
+
+
 def get_selected_text() -> tuple[str, bool]:
     """
     Try to capture highlighted text via Ctrl+C.
