@@ -2,8 +2,8 @@ import threading
 from pynput import keyboard
 from config import get_hotkey_pynput
 
-_listener: keyboard.GlobalHotKeys | None = None
-_callback: callable | None = None
+_listener = None
+_callback = None
 
 
 def start(callback: callable) -> None:
