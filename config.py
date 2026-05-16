@@ -45,7 +45,43 @@ AVAILABLE_MODELS = [
     },
 ]
 
-HOTKEY = "<ctrl>+<shift>+a"
+# Default hotkey — Ctrl+Shift+` avoids browser conflicts (Ctrl+Shift+A opens tab managers)
+_DEFAULT_HOTKEY = {"ctrl": True, "shift": True, "alt": False, "key": "`"}
+
+
+def get_hotkey() -> dict:
+    return load_config().get("hotkey", _DEFAULT_HOTKEY.copy())
+
+
+def set_hotkey(h: dict) -> None:
+    cfg = load_config()
+    cfg["hotkey"] = h
+    save_config(cfg)
+
+
+def get_hotkey_pynput(h: dict | None = None) -> str:
+    """Return the hotkey in pynput GlobalHotKeys format, e.g. '<ctrl>+<shift>+`'."""
+    if h is None:
+        h = get_hotkey()
+    parts = []
+    if h.get("ctrl",  False): parts.append("<ctrl>")
+    if h.get("shift", False): parts.append("<shift>")
+    if h.get("alt",   False): parts.append("<alt>")
+    parts.append(h.get("key", "`"))
+    return "+".join(parts)
+
+
+def get_hotkey_display(h: dict | None = None) -> str:
+    """Return a human-readable hotkey string, e.g. 'Ctrl + Shift + `'."""
+    if h is None:
+        h = get_hotkey()
+    parts = []
+    if h.get("ctrl",  False): parts.append("Ctrl")
+    if h.get("shift", False): parts.append("Shift")
+    if h.get("alt",   False): parts.append("Alt")
+    key = h.get("key", "`")
+    parts.append(key.upper() if len(key) == 1 else key)
+    return " + ".join(parts)
 
 _EXE_NAME = "llamafile.exe" if platform.system() == "Windows" else "llamafile"
 

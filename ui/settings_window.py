@@ -1,7 +1,8 @@
 import threading
 import customtkinter as ctk
 from model_manager import list_local_models, download_model
-from config import AVAILABLE_MODELS, get_active_model, is_junior_mode, set_junior_mode
+from config import (AVAILABLE_MODELS, get_active_model, is_junior_mode, set_junior_mode,
+                    get_hotkey, set_hotkey, get_hotkey_display)
 from theme import TEAL, TEAL_HOVER, LIME_GREEN, CHARCOAL, WHITE
 import llm_engine
 
@@ -17,7 +18,7 @@ class SettingsWindow:
 
         self._win = ctk.CTkToplevel()
         self._win.title("Settings — Student AI Support")
-        self._win.geometry("500x480")
+        self._win.geometry("500x580")
         self._win.resizable(False, True)
         self._win.protocol("WM_DELETE_WINDOW", self._close)
 
@@ -83,6 +84,57 @@ class SettingsWindow:
             command=lambda: set_junior_mode(self._junior_var.get()),
         ).pack(side="left", padx=10, pady=4)
 
+        # ── Hotkey ───────────────────────────────────────────────────
+        ctk.CTkLabel(
+            self._win,
+            text="Launch Hotkey",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            text_color=TEAL,
+        ).pack(padx=20, pady=(4, 2), anchor="w")
+
+        ctk.CTkLabel(
+            self._win,
+            text="Tick modifiers, type a single key, then press Apply.",
+            text_color="gray",
+        ).pack(padx=20, anchor="w")
+
+        hk_frame = ctk.CTkFrame(self._win, fg_color="transparent")
+        hk_frame.pack(fill="x", padx=20, pady=(6, 12))
+
+        h = get_hotkey()
+        self._hk_ctrl  = ctk.BooleanVar(value=h.get("ctrl",  True))
+        self._hk_shift = ctk.BooleanVar(value=h.get("shift", True))
+        self._hk_alt   = ctk.BooleanVar(value=h.get("alt",   False))
+
+        ctk.CTkCheckBox(hk_frame, text="Ctrl",  variable=self._hk_ctrl,
+                        fg_color=TEAL, hover_color=TEAL_HOVER, checkmark_color=WHITE,
+                        ).pack(side="left", padx=(0, 8))
+        ctk.CTkCheckBox(hk_frame, text="Shift", variable=self._hk_shift,
+                        fg_color=TEAL, hover_color=TEAL_HOVER, checkmark_color=WHITE,
+                        ).pack(side="left", padx=(0, 8))
+        ctk.CTkCheckBox(hk_frame, text="Alt",   variable=self._hk_alt,
+                        fg_color=TEAL, hover_color=TEAL_HOVER, checkmark_color=WHITE,
+                        ).pack(side="left", padx=(0, 12))
+
+        ctk.CTkLabel(hk_frame, text="+", text_color=CHARCOAL).pack(side="left", padx=(0, 6))
+
+        self._hk_key_entry = ctk.CTkEntry(hk_frame, width=44, justify="center")
+        self._hk_key_entry.insert(0, h.get("key", "`"))
+        self._hk_key_entry.pack(side="left", padx=(0, 12))
+
+        self._hk_status = ctk.CTkLabel(hk_frame, text="", text_color="gray")
+        self._hk_status.pack(side="left", padx=(0, 8))
+
+        ctk.CTkButton(
+            hk_frame,
+            text="Apply",
+            width=72,
+            fg_color=TEAL,
+            hover_color=TEAL_HOVER,
+            text_color=WHITE,
+            command=self._apply_hotkey,
+        ).pack(side="right")
+
         # ── Download models ──────────────────────────────────────────
         ctk.CTkLabel(
             self._win,
@@ -146,6 +198,27 @@ class SettingsWindow:
                 status_label.configure(text="Failed", text_color="red")
 
         threading.Thread(target=_run, daemon=True).start()
+
+    def _apply_hotkey(self) -> None:
+        import hotkey_listener
+        key = self._hk_key_entry.get().strip()
+        if len(key) != 1:
+            self._hk_status.configure(text="Type exactly 1 key", text_color="red")
+            return
+        if not (self._hk_ctrl.get() or self._hk_shift.get() or self._hk_alt.get()):
+            self._hk_status.configure(text="Pick at least one modifier", text_color="red")
+            return
+        h = {
+            "ctrl":  self._hk_ctrl.get(),
+            "shift": self._hk_shift.get(),
+            "alt":   self._hk_alt.get(),
+            "key":   key,
+        }
+        set_hotkey(h)
+        hotkey_listener.restart()
+        self._hk_status.configure(
+            text=f"Active: {get_hotkey_display(h)}", text_color=LIME_GREEN
+        )
 
     def _on_model_select(self, value: str) -> None:
         llm_engine.switch_model(value)
