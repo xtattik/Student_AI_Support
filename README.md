@@ -6,7 +6,7 @@ A private, local AI study tool. Highlight any text on your screen, press a keybo
 
 ## What it does
 
-Press **Ctrl+Shift+A** (Windows) or **Ctrl+Shift+A** (Mac) after highlighting any text — in a document, a webpage, a PDF, anything — and choose:
+Press **Ctrl+Shift+`** after highlighting any text — in a document, a webpage, a PDF, anything — and choose:
 
 | Option | What you get |
 |---|---|
@@ -15,6 +15,8 @@ Press **Ctrl+Shift+A** (Windows) or **Ctrl+Shift+A** (Mac) after highlighting an
 | **Test me on this** | 3 multiple-choice questions with answer checking |
 
 > **Note:** The first response after launching takes a moment while the AI warms up. After that it's faster.
+>
+> **Tip:** You can change the keyboard shortcut in Settings if it clashes with another app.
 
 ---
 
@@ -34,10 +36,12 @@ Open the `StudentAI` folder and double-click **StudentAI.exe**
 ### Step 4 — Download the AI model (first time only)
 A setup window will appear and download the AI model (~1.9 GB). This takes a few minutes depending on your connection. It only happens once.
 
+> **If the download is blocked** (e.g. on school Wi-Fi), see [Manual model download](#manual-model-download) below.
+
 ### Step 5 — You're ready
 A small icon appears in your system tray (bottom-right, near the clock). The app is running in the background.
 
-**To use it:** Highlight any text → press **Ctrl+Shift+A** → choose an option.
+**To use it:** Highlight any text → press **Ctrl+Shift+`** → choose an option.
 
 **To quit:** Right-click the tray icon → **Quit**
 
@@ -73,12 +77,41 @@ When the permission prompt appears:
 ### Step 5 — Download the AI model (first time only)
 A setup window will appear and download the AI model (~1.9 GB). This takes a few minutes. It only happens once.
 
+> **If the download is blocked** (e.g. on school Wi-Fi), see [Manual model download](#manual-model-download) below.
+
 ### Step 6 — You're ready
 A small icon appears in your menu bar (top-right). The app is running in the background.
 
-**To use it:** Highlight any text → press **Ctrl+Shift+A** → choose an option.
+**To use it:** Highlight any text → press **Ctrl+Shift+`** → choose an option.
 
 **To quit:** Click the menu bar icon → **Quit**
+
+---
+
+## Manual model download
+
+If the automatic download is blocked by your school network, you can download the model file at home and copy it across.
+
+### Step 1 — Download the model file
+**[Download Qwen2.5-3B-Instruct-Q4_K_M.gguf](https://huggingface.co/bartowski/Qwen2.5-3B-Instruct-GGUF/resolve/main/Qwen2.5-3B-Instruct-Q4_K_M.gguf)** (~1.9 GB)
+
+This is the AI "brain" the app uses. Download it on a home connection (or any network that allows it).
+
+### Step 2 — Place it in the models folder
+
+**Windows:**
+1. Open the `StudentAI` folder (wherever you unzipped it)
+2. Open the `models` folder inside it
+3. Copy the downloaded `.gguf` file into that folder
+
+**Mac:**
+1. Find `StudentAI.app` (wherever you unzipped it)
+2. Right-click it → **Show Package Contents**
+3. Navigate to `Contents` → `MacOS` → `models`
+4. Copy the downloaded `.gguf` file into that folder
+
+### Step 3 — Launch the app
+Double-click `StudentAI.exe` (Windows) or `StudentAI.app` (Mac). The setup screen will not appear this time — it will go straight to the system tray/menu bar because it found the model file.
 
 ---
 
@@ -87,9 +120,11 @@ A small icon appears in your menu bar (top-right). The app is running in the bac
 **Nothing happens when I press the shortcut**
 - Check the tray/menu bar icon is still running — if not, relaunch the app
 - Make sure you actually highlighted (selected) some text before pressing the shortcut
+- If another app uses the same shortcut, change it in Settings (right-click tray icon → Settings)
 
 **"No text selected" message**
 - The shortcut was pressed without highlighted text. Select some text first, then press the shortcut
+- In Adobe Reader / PDF viewers: select your text, press **Ctrl+C** first, then press the shortcut
 
 **The response is slow**
 - This is normal, especially on Windows. The AI runs entirely on your device with no internet. Mac users on Apple Silicon (M1/M2/M3) will generally see faster responses.
@@ -98,7 +133,7 @@ A small icon appears in your menu bar (top-right). The app is running in the bac
 - Make sure you used right-click → Open (not double-click) the very first time
 
 **Windows: the app crashes on startup**
-- Check that the `models` folder inside your StudentAI folder contains a `.gguf` file. If it's empty, re-run the app to trigger the download.
+- Check that the `models` folder inside your StudentAI folder contains a `.gguf` file. If it's empty, re-run the app to trigger the download, or follow the manual download steps above.
 
 ---
 
@@ -125,6 +160,8 @@ git push origin v1.1
 ### Sharing with students
 Send students the link to the Releases page, or copy the direct download links for each file. The model download happens on the student's machine on first launch — you don't need to distribute it.
 
+If your school network blocks HuggingFace, share the [manual model download link](#manual-model-download) with students and ask them to do it at home.
+
 ### Development setup (if you want to run from source)
 Requires Python 3.11 or 3.12.
 
@@ -133,14 +170,12 @@ Requires Python 3.11 or 3.12.
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-python download_llamafile.py
 python app.py
 
 # macOS
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python download_llamafile.py
 python app.py
 ```
 
@@ -152,3 +187,5 @@ Right-click the tray icon → **Settings** → download additional models or swi
 | Qwen2.5 3B (default) | ~1.9 GB | All subjects |
 | Qwen2.5 Coder 3B | ~1.9 GB | Computing / IT classes |
 | Qwen2.5 7B | ~4.5 GB | Stronger machines only |
+
+> **Advanced:** Any GGUF-format model file placed in the `models` folder will appear in the Settings dropdown automatically.
