@@ -1,7 +1,7 @@
 import threading
 import platform
 from typing import Generator
-from config import MODELS_DIR, get_active_model, set_active_model
+from config import get_models_dir, get_active_model, set_active_model
 
 _llm = None
 _current_model: str | None = None
@@ -15,7 +15,7 @@ def _do_load(model_filename: str) -> None:
     global _llm, _current_model
     from llama_cpp import Llama
 
-    model_path = MODELS_DIR / model_filename
+    model_path = get_models_dir() / model_filename
     if not model_path.exists():
         raise FileNotFoundError(f"Model not found: {model_path}")
 

@@ -26,7 +26,9 @@ def _platform_models_dir() -> Path:
             return Path.home() / "Library" / "Application Support" / "StudentAI" / "models"
     return BASE_DIR / "models"
 
+# Platform default — used as the fallback when no override is stored in config.json
 MODELS_DIR = _platform_models_dir()
+
 BIN_DIR     = BUNDLE_DIR / "bin"
 ASSETS_DIR  = BUNDLE_DIR / "assets"
 CONFIG_FILE = BASE_DIR / "config.json"
@@ -109,6 +111,25 @@ def load_config() -> dict:
 def save_config(data: dict) -> None:
     with open(CONFIG_FILE, "w") as f:
         json.dump(data, f, indent=2)
+
+
+def get_models_dir() -> Path:
+    """Return the current models directory.
+    Respects a user-set override in config.json; falls back to the platform default."""
+    override = load_config().get("models_dir")
+    if override:
+        return Path(override)
+    return MODELS_DIR  # platform default
+
+
+def set_models_dir(path: Path | None) -> None:
+    """Persist a custom models directory. Pass None to reset to the platform default."""
+    cfg = load_config()
+    if path is None:
+        cfg.pop("models_dir", None)
+    else:
+        cfg["models_dir"] = str(path)
+    save_config(cfg)
 
 
 def get_active_model() -> str:
