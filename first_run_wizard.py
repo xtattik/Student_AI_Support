@@ -95,16 +95,21 @@ def create_shortcut() -> tuple[bool, str]:
 
 
 def _shortcut_windows() -> None:
-    exe  = Path(sys.executable)
-    link = Path.home() / "Desktop" / "Student AI Support.lnk"
-    ps   = (
-        f'$s = (New-Object -ComObject WScript.Shell).CreateShortcut("{link}"); '
+    exe = Path(sys.executable)
+    # Use WScript.Shell.SpecialFolders so we find the real Desktop even when
+    # OneDrive has redirected it (Path.home()/Desktop is often wrong on school PCs)
+    ps = (
+        '$shell = New-Object -ComObject WScript.Shell; '
+        '$lnk = Join-Path ($shell.SpecialFolders("Desktop")) "Student AI Support.lnk"; '
+        f'$s = $shell.CreateShortcut($lnk); '
         f'$s.TargetPath = "{exe}"; '
         f'$s.WorkingDirectory = "{exe.parent}"; '
         f'$s.IconLocation = "{exe}"; '
-        f'$s.Save()'
+        '$s.Save()'
     )
-    subprocess.run(["powershell", "-Command", ps], capture_output=True, check=True)
+    result = subprocess.run(["powershell", "-Command", ps], capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip() or "PowerShell shortcut creation failed")
 
 
 # ── Startup management ─────────────────────────────────────────────────────────

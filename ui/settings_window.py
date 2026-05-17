@@ -27,7 +27,7 @@ class SettingsWindow:
 
         self._win = ctk.CTkToplevel()
         self._win.title("Settings — Student AI Support")
-        self._win.geometry("520x600")
+        self._win.geometry("520x660")
         self._win.resizable(False, True)
         self._win.protocol("WM_DELETE_WINDOW", self._close)
         self._win.after(200, lambda: set_window_icon(self._win))
@@ -68,9 +68,13 @@ class SettingsWindow:
     # ══════════════════════════════════════════════════════════════════
 
     def _build_general(self, tab) -> None:
+        # Scrollable area so nothing gets cut off on small screens
+        scroll = ctk.CTkScrollableFrame(tab, fg_color="transparent")
+        scroll.pack(fill="both", expand=True, padx=0, pady=0)
+
         # ── Active model ──────────────────────────────────────────────
-        self._section(tab, "Active Model")
-        ctk.CTkLabel(tab, text="Select a model or download additional ones below.",
+        self._section(scroll, "Active Model")
+        ctk.CTkLabel(scroll, text="Select a model or download additional ones below.",
                      text_color="gray").pack(padx=20, anchor="w")
 
         local  = [p.name for p in list_local_models()]
@@ -78,41 +82,41 @@ class SettingsWindow:
         self._model_var = ctk.StringVar(value=active if active in local else (local[0] if local else ""))
 
         ctk.CTkOptionMenu(
-            tab, values=local or ["No models downloaded"],
+            scroll, values=local or ["No models downloaded"],
             variable=self._model_var, command=self._on_model_select,
             fg_color=TEAL, button_color=TEAL_HOVER,
             button_hover_color=TEAL_HOVER, text_color=WHITE,
         ).pack(padx=20, pady=(6, 14), anchor="w")
 
         # ── Language mode ─────────────────────────────────────────────
-        self._section(tab, "Language Mode")
-        mode_frame = ctk.CTkFrame(tab, fg_color="transparent")
+        self._section(scroll, "Language Mode")
+        mode_frame = ctk.CTkFrame(scroll, fg_color="transparent")
         mode_frame.pack(fill="x", padx=20, pady=(0, 4))
 
         self._junior_var = ctk.BooleanVar(value=is_junior_mode())
         ctk.CTkSwitch(
             mode_frame, text="Junior mode  (simpler language, ages 9–10)",
             variable=self._junior_var, onvalue=True, offvalue=False,
-            fg_color=TEAL, progress_color=TEAL,
+            fg_color="gray50", progress_color=TEAL,
             command=lambda: set_junior_mode(self._junior_var.get()),
         ).pack(side="left", padx=10, pady=4)
 
-        startup_frame = ctk.CTkFrame(tab, fg_color="transparent")
+        startup_frame = ctk.CTkFrame(scroll, fg_color="transparent")
         startup_frame.pack(fill="x", padx=20, pady=(0, 12))
         self._startup_var = ctk.BooleanVar(value=get_startup_enabled())
         ctk.CTkSwitch(
             startup_frame, text="Launch at login",
             variable=self._startup_var, onvalue=True, offvalue=False,
-            fg_color=TEAL, progress_color=TEAL,
+            fg_color="gray50", progress_color=TEAL,
             command=lambda: set_startup(self._startup_var.get()),
         ).pack(side="left", padx=10, pady=4)
 
         # ── Hotkey ────────────────────────────────────────────────────
-        self._section(tab, "Launch Hotkey")
-        ctk.CTkLabel(tab, text="Tick modifiers, type a single key, then Apply.",
+        self._section(scroll, "Launch Hotkey")
+        ctk.CTkLabel(scroll, text="Tick modifiers, type a single key, then Apply.",
                      text_color="gray").pack(padx=20, anchor="w")
 
-        hk_frame = ctk.CTkFrame(tab, fg_color="transparent")
+        hk_frame = ctk.CTkFrame(scroll, fg_color="transparent")
         hk_frame.pack(fill="x", padx=20, pady=(6, 12))
 
         h = get_hotkey()
@@ -137,13 +141,14 @@ class SettingsWindow:
                       command=self._apply_hotkey).pack(side="right")
 
         # ── Download models ───────────────────────────────────────────
-        self._section(tab, "Download Models")
+        self._section(scroll, "Download Models")
         for m in AVAILABLE_MODELS:
-            self._model_row(tab, m)
+            self._model_row(scroll, m)
 
+        # Close button lives outside the scroll frame so it's always visible
         ctk.CTkButton(tab, text="Close",
                       fg_color=TEAL, hover_color=TEAL_HOVER, text_color=WHITE,
-                      command=self._close).pack(pady=14)
+                      command=self._close).pack(pady=(6, 10))
 
     # ══════════════════════════════════════════════════════════════════
     # Advanced tab
@@ -363,8 +368,8 @@ class SettingsWindow:
 
         def _open_folder_and_quit():
             self._open_app_folder()
-            import app as _app
-            _app._quit()
+            import os as _os
+            _os._exit(0)  # hard exit — releases the exe lock so Windows can delete the folder
 
         ctk.CTkButton(final, text="Show app folder & Quit",
                       fg_color=TEAL, hover_color=TEAL_HOVER, text_color=WHITE,
