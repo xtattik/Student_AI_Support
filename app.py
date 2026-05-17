@@ -11,9 +11,10 @@ from ui.test_window import TestWindow
 from ui.setup_window import SetupWindow
 from ui.settings_window import SettingsWindow
 from system_tray import TrayIcon
-from model_manager import has_any_model
+from model_manager import has_any_model, migrate_models_if_needed
 from prompts import get_prompts
-from config import BASE_DIR, is_junior_mode
+from config import BASE_DIR, is_junior_mode, is_first_run
+from first_run_wizard import FirstRunWizard
 from theme import set_window_icon
 import single_instance
 
@@ -53,7 +54,9 @@ def _on_action(action: str) -> None:
                 if action == "test_me":
                     win = TestWindow(source_text=text, generator=generator, check_prompt=p["check"])
                 else:
-                    win = ResultWindow(action, generator)
+                    win = ResultWindow(action, generator,
+                                       source_text=text,
+                                       simplify_prompt=p.get("simplify", ""))
                 win.show()
             except Exception:
                 err = traceback.format_exc()
@@ -87,6 +90,8 @@ def _show_error(title: str, message: str) -> None:
 def _launch_app() -> None:
     global _root, _overlay
 
+    migrate_models_if_needed()
+
     _root = ctk.CTk()
     _root.withdraw()
 
@@ -102,6 +107,10 @@ def _launch_app() -> None:
 
     # Pre-load the model in the background so first response is faster
     llm_engine.preload()
+
+    # First-run welcome wizard (shown once after fresh install)
+    if is_first_run():
+        _root.after(1500, lambda: FirstRunWizard(_root).show())
 
     _root.mainloop()
 

@@ -69,6 +69,19 @@ D) [Option]
 
 Do not include the answers, any introduction, or any text outside this format."""
 
+# ── Simplify (used when student clicks "Simpler please") ─────────────────────
+
+SIMPLIFY = """You are a patient tutor. A student read your explanation but still doesn't understand it.
+Explain the following text in an even simpler way than before.
+Use shorter sentences, more basic words, and a concrete everyday analogy if possible.
+Maximum 3 short paragraphs. Find a fresh approach — do not repeat phrases from the previous explanation."""
+
+SIMPLIFY_JUNIOR = """You are a kind teacher. A young student still doesn't understand the explanation.
+Explain the text below in an even simpler way.
+Use very short sentences and the simplest words you can find.
+You can use a fun comparison to something from everyday life — like food, games, or animals.
+Maximum 3 short paragraphs."""
+
 # ── Answer checking (shared) ─────────────────────────────────────────────────
 
 CHECK_ANSWERS = """A student has just answered 3 multiple-choice questions about the following text.
@@ -115,10 +128,12 @@ def get_prompts(junior: bool = False) -> dict:
             "summarise": SUMMARISE_JUNIOR,
             "test_me":   TEST_ME_JUNIOR,
             "check":     CHECK_ANSWERS_JUNIOR,
+            "simplify":  SIMPLIFY_JUNIOR,
         }
     return {
         "explain":   EXPLAIN,
         "summarise": SUMMARISE,
         "test_me":   TEST_ME,
         "check":     CHECK_ANSWERS,
+        "simplify":  SIMPLIFY,
     }

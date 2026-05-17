@@ -3,6 +3,7 @@ import customtkinter as ctk
 from model_manager import list_local_models, download_model
 from config import (AVAILABLE_MODELS, get_active_model, is_junior_mode, set_junior_mode,
                     get_hotkey, set_hotkey, get_hotkey_display)
+from first_run_wizard import get_startup_enabled, set_startup
 from theme import TEAL, TEAL_HOVER, LIME_GREEN, CHARCOAL, WHITE
 import llm_engine
 
@@ -82,6 +83,21 @@ class SettingsWindow:
             fg_color=TEAL,
             progress_color=TEAL,
             command=lambda: set_junior_mode(self._junior_var.get()),
+        ).pack(side="left", padx=10, pady=4)
+
+        startup_frame = ctk.CTkFrame(self._win, fg_color="transparent")
+        startup_frame.pack(fill="x", padx=20, pady=(0, 12))
+
+        self._startup_var = ctk.BooleanVar(value=get_startup_enabled())
+        ctk.CTkSwitch(
+            startup_frame,
+            text="Launch at login",
+            variable=self._startup_var,
+            onvalue=True,
+            offvalue=False,
+            fg_color=TEAL,
+            progress_color=TEAL,
+            command=lambda: set_startup(self._startup_var.get()),
         ).pack(side="left", padx=10, pady=4)
 
         # ── Hotkey ───────────────────────────────────────────────────

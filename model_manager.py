@@ -1,8 +1,33 @@
+import shutil
 from pathlib import Path
 from typing import Callable
 import requests
 from huggingface_hub import hf_hub_url
-from config import MODELS_DIR, DEFAULT_MODEL_FILE, DEFAULT_MODEL_REPO, AVAILABLE_MODELS
+from config import BASE_DIR, MODELS_DIR, DEFAULT_MODEL_FILE, DEFAULT_MODEL_REPO, AVAILABLE_MODELS
+
+
+def migrate_models_if_needed() -> int:
+    """Silently move .gguf files from the legacy folder (next to the exe) to
+    the current MODELS_DIR (AppData/ApplicationSupport).  Returns files moved."""
+    legacy = BASE_DIR / "models"
+    if legacy.resolve() == MODELS_DIR.resolve():
+        return 0  # same location — nothing to do (dev mode)
+    if not legacy.exists():
+        return 0
+    files = list(legacy.glob("*.gguf"))
+    if not files:
+        return 0
+    moved = 0
+    try:
+        MODELS_DIR.mkdir(parents=True, exist_ok=True)
+        for f in files:
+            dest = MODELS_DIR / f.name
+            if not dest.exists():
+                shutil.move(str(f), str(dest))
+                moved += 1
+    except Exception:
+        pass  # best-effort — old path still works as fallback
+    return moved
 
 
 def has_any_model() -> bool:

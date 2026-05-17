@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import platform
 from pathlib import Path
@@ -13,7 +14,19 @@ else:
     BASE_DIR   = Path(__file__).parent
     BUNDLE_DIR = Path(__file__).parent
 
-MODELS_DIR  = BASE_DIR / "models"
+def _platform_models_dir() -> Path:
+    """Return a models directory that won't be auto-synced by OneDrive or iCloud.
+    Only redirects for frozen (packaged) builds — dev runs keep models next to the code."""
+    if getattr(sys, "frozen", False):
+        if platform.system() == "Windows":
+            local = os.environ.get("LOCALAPPDATA")
+            if local:
+                return Path(local) / "StudentAI" / "models"
+        elif platform.system() == "Darwin":
+            return Path.home() / "Library" / "Application Support" / "StudentAI" / "models"
+    return BASE_DIR / "models"
+
+MODELS_DIR = _platform_models_dir()
 BIN_DIR     = BUNDLE_DIR / "bin"
 ASSETS_DIR  = BUNDLE_DIR / "assets"
 CONFIG_FILE = BASE_DIR / "config.json"
@@ -110,6 +123,17 @@ def set_active_model(filename: str) -> None:
 
 def is_junior_mode() -> bool:
     return load_config().get("junior_mode", False)
+
+
+def is_first_run() -> bool:
+    """True if the user hasn't been shown the welcome/setup wizard yet."""
+    return not load_config().get("welcomed", False)
+
+
+def mark_welcomed() -> None:
+    cfg = load_config()
+    cfg["welcomed"] = True
+    save_config(cfg)
 
 
 def set_junior_mode(value: bool) -> None:
