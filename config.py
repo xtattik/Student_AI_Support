@@ -33,6 +33,8 @@ BIN_DIR     = BUNDLE_DIR / "bin"
 ASSETS_DIR  = BUNDLE_DIR / "assets"
 CONFIG_FILE = BASE_DIR / "config.json"
 
+VERSION = "1.9.3"
+
 LLAMAFILE_PORT = 8080
 LLAMAFILE_HOST = f"http://127.0.0.1:{LLAMAFILE_PORT}"
 

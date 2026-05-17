@@ -3,6 +3,7 @@ import webbrowser
 import pystray
 from theme import load_logo_pil
 from config import is_junior_mode, set_junior_mode
+import updater
 
 HELP_URL = "https://github.com/xtattik/Student_AI_Support#readme"
 
@@ -12,6 +13,7 @@ class TrayIcon:
         self._on_settings = on_settings
         self._on_quit = on_quit
         self._icon: pystray.Icon | None = None
+        self._update_result: dict | None = None
 
     def start(self) -> None:
         try:
@@ -29,7 +31,8 @@ class TrayIcon:
             ),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("Settings", lambda: self._on_settings()),
-            pystray.MenuItem("Help", lambda: webbrowser.open(HELP_URL)),
+            pystray.MenuItem("Help",     lambda: webbrowser.open(HELP_URL)),
+            pystray.MenuItem("Check for updates", self._check_updates_tray),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("Quit", lambda: self._quit()),
         )
@@ -40,6 +43,15 @@ class TrayIcon:
             menu,
         )
         threading.Thread(target=self._icon.run, daemon=True).start()
+
+    def _check_updates_tray(self) -> None:
+        def _run():
+            result = updater.check()
+            if result["status"] == "update_available":
+                webbrowser.open(result["url"])
+            else:
+                webbrowser.open(updater.RELEASES_URL)
+        threading.Thread(target=_run, daemon=True).start()
 
     def _toggle_junior(self) -> None:
         set_junior_mode(not is_junior_mode())

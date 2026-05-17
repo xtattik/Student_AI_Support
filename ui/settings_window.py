@@ -13,6 +13,8 @@ from config import (AVAILABLE_MODELS, get_active_model, get_models_dir, set_mode
                     is_first_run, mark_welcomed)
 from theme import TEAL, TEAL_HOVER, LIME_GREEN, SKY_BLUE, CHARCOAL, WHITE, set_window_icon
 from first_run_wizard import get_startup_enabled, set_startup, delete_shortcut
+from config import VERSION
+import updater
 import llm_engine
 
 
@@ -185,6 +187,29 @@ class SettingsWindow:
                       fg_color="gray", hover_color=TEAL_HOVER, text_color=WHITE,
                       command=self._reset_models_folder).pack(side="left")
 
+        # ── Updates ───────────────────────────────────────────────────
+        self._section(tab, "Updates")
+        ctk.CTkLabel(
+            tab,
+            text="To update: download the new zip and extract it over your existing\n"
+                 "StudentAI folder. Settings and models are kept automatically.",
+            text_color="gray", justify="left",
+        ).pack(padx=20, anchor="w", pady=(0, 8))
+
+        update_row = ctk.CTkFrame(tab, fg_color="transparent")
+        update_row.pack(fill="x", padx=20, pady=(0, 4))
+
+        self._update_status = ctk.CTkLabel(
+            update_row, text=f"Current version: v{VERSION}", text_color="gray",
+        )
+        self._update_status.pack(side="left")
+
+        ctk.CTkButton(
+            update_row, text="Check for updates", width=150,
+            fg_color=TEAL, hover_color=TEAL_HOVER, text_color=WHITE,
+            command=self._check_updates,
+        ).pack(side="right")
+
         # ── Uninstall ─────────────────────────────────────────────────
         self._section(tab, "Uninstall")
         ctk.CTkLabel(
@@ -259,6 +284,37 @@ class SettingsWindow:
         set_hotkey(h)
         hotkey_listener.restart()
         self._hk_status.configure(text=f"Active: {get_hotkey_display(h)}", text_color=LIME_GREEN)
+
+    # ── Advanced: update check ────────────────────────────────────────────────
+
+    def _check_updates(self) -> None:
+        self._update_status.configure(text="Checking…", text_color="gray")
+        self._update_status.unbind("<Button-1>")
+
+        def _run():
+            result = updater.check()
+
+            def _show():
+                if result["status"] == "update_available":
+                    self._update_status.configure(
+                        text=result["message"], text_color=LIME_GREEN, cursor="hand2",
+                    )
+                    self._update_status.bind(
+                        "<Button-1>", lambda _: webbrowser.open(result["url"])
+                    )
+                elif result["status"] == "up_to_date":
+                    self._update_status.configure(
+                        text=result["message"], text_color=LIME_GREEN, cursor="",
+                    )
+                else:
+                    self._update_status.configure(
+                        text=result["message"], text_color="orange", cursor="",
+                    )
+
+            if self._win:
+                self._win.after(0, _show)
+
+        threading.Thread(target=_run, daemon=True).start()
 
     # ── Advanced: models folder ────────────────────────────────────────────────
 

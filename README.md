@@ -178,6 +178,11 @@ Send students the link to the Releases page, or copy the direct download links f
 
 If your school network blocks HuggingFace, share the [manual model download link](#manual-model-download) with students and ask them to do it at home.
 
+### Updating students to a new version
+Students can check for updates via **Settings → Advanced → Check for updates**, or by right-clicking the tray icon → **Check for updates**.
+
+To install an update, students just download the new zip and extract it **over the top of their existing StudentAI folder**. Their settings and AI models are stored separately and will be kept automatically — no need to re-download the model.
+
 ### Development setup (if you want to run from source)
 Requires Python 3.11 or 3.12.
 
