@@ -1,7 +1,10 @@
 import threading
+import webbrowser
 import pystray
 from theme import load_logo_pil
 from config import is_junior_mode, set_junior_mode
+
+HELP_URL = "https://github.com/xtattik/Student_AI_Support#readme"
 
 
 class TrayIcon:
@@ -26,13 +29,14 @@ class TrayIcon:
             ),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("Settings", lambda: self._on_settings()),
+            pystray.MenuItem("Help", lambda: webbrowser.open(HELP_URL)),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("Quit", lambda: self._quit()),
         )
         self._icon = pystray.Icon(
             "StudentAI",
             img,
-            "Student AI Support\nCtrl+Shift+A to use",
+            "Student AI Support\nHighlight text, then press Ctrl+Shift+`",
             menu,
         )
         threading.Thread(target=self._icon.run, daemon=True).start()

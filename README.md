@@ -34,9 +34,12 @@ Open the `StudentAI` folder and double-click **StudentAI.exe**
 > **Windows security warning:** If you see *"Windows protected your PC"*, click **More info** → **Run anyway**. This appears because the app isn't signed with a paid certificate — it's safe.
 
 ### Step 4 — Download the AI model (first time only)
-A setup window will appear and download the AI model (~1.9 GB). This takes a few minutes depending on your connection. It only happens once.
+A setup window will appear showing where the model will be saved. You can change this location if you like, then click **Start Download** (~1.9 GB). It only happens once.
 
 > **If the download is blocked** (e.g. on school Wi-Fi), see [Manual model download](#manual-model-download) below.
+
+> **Default model location (Windows):** `%LOCALAPPDATA%\StudentAI\models\`
+> This folder is *not* synced by OneDrive, so it won't chew up your cloud storage.
 
 ### Step 5 — You're ready
 A small icon appears in your system tray (bottom-right, near the clock). The app is running in the background.
@@ -75,9 +78,12 @@ When the permission prompt appears:
 4. Switch back to the app
 
 ### Step 5 — Download the AI model (first time only)
-A setup window will appear and download the AI model (~1.9 GB). This takes a few minutes. It only happens once.
+A setup window will appear showing where the model will be saved. You can change this location if you like, then click **Start Download** (~1.9 GB). It only happens once.
 
 > **If the download is blocked** (e.g. on school Wi-Fi), see [Manual model download](#manual-model-download) below.
+
+> **Default model location (Mac):** `~/Library/Application Support/StudentAI/models/`
+> This folder is not synced by iCloud Drive.
 
 ### Step 6 — You're ready
 A small icon appears in your menu bar (top-right). The app is running in the background.
@@ -100,18 +106,28 @@ This is the AI "brain" the app uses. Download it on a home connection (or any ne
 ### Step 2 — Place it in the models folder
 
 **Windows:**
-1. Open the `StudentAI` folder (wherever you unzipped it)
-2. Open the `models` folder inside it
+1. Open File Explorer and go to: `%LOCALAPPDATA%\StudentAI\models\`
+   *(Type that path directly into the address bar — Windows will expand it)*
+2. If the `models` folder doesn't exist yet, create it
 3. Copy the downloaded `.gguf` file into that folder
 
 **Mac:**
-1. Find `StudentAI.app` (wherever you unzipped it)
-2. Right-click it → **Show Package Contents**
-3. Navigate to `Contents` → `MacOS` → `models`
-4. Copy the downloaded `.gguf` file into that folder
+1. Open Finder and go to: `~/Library/Application Support/StudentAI/models/`
+   *(In Finder: Go menu → Go to Folder… → paste the path)*
+2. If the `models` folder doesn't exist yet, create it
+3. Copy the downloaded `.gguf` file into that folder
+
+> **Tip:** You can also choose a different folder entirely. On first launch, the setup screen lets you change the models location — point it at whatever folder you put the file in.
 
 ### Step 3 — Launch the app
-Double-click `StudentAI.exe` (Windows) or `StudentAI.app` (Mac). The setup screen will not appear this time — it will go straight to the system tray/menu bar because it found the model file.
+Double-click `StudentAI.exe` (Windows) or `StudentAI.app` (Mac). The setup screen will appear — if the model file is already in the folder, it will show **"✓ Model found — no download needed"** and you can click Continue.
+
+---
+
+## Getting help
+
+Right-click the tray icon (Windows) or menu bar icon (Mac) → **Help** to open this page.
+You can also find it in **Settings → Help** (top-right of the Settings window).
 
 ---
 

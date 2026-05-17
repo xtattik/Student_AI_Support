@@ -2,6 +2,7 @@ import sys
 import platform
 import subprocess
 import threading
+import webbrowser
 import tkinter.filedialog as fd
 import customtkinter as ctk
 from pathlib import Path
@@ -39,6 +40,13 @@ class SettingsWindow:
             header, text="Settings",
             font=ctk.CTkFont(size=15, weight="bold"), text_color=WHITE,
         ).pack(side="left", padx=16, pady=10)
+
+        ctk.CTkButton(
+            header, text="Help", width=60,
+            fg_color="transparent", hover_color=TEAL_HOVER, text_color=WHITE,
+            border_width=1, border_color=WHITE,
+            command=lambda: webbrowser.open("https://github.com/xtattik/Student_AI_Support#readme"),
+        ).pack(side="right", padx=12, pady=8)
 
         # ── Tabs ──────────────────────────────────────────────────────
         tabs = ctk.CTkTabview(self._win, fg_color="transparent",
