@@ -12,7 +12,7 @@ from config import (AVAILABLE_MODELS, get_active_model, get_models_dir, set_mode
                     get_hotkey, set_hotkey, get_hotkey_display,
                     is_first_run, mark_welcomed)
 from theme import TEAL, TEAL_HOVER, LIME_GREEN, SKY_BLUE, CHARCOAL, WHITE, set_window_icon
-from first_run_wizard import get_startup_enabled, set_startup
+from first_run_wizard import get_startup_enabled, set_startup, delete_shortcut
 import llm_engine
 
 
@@ -334,8 +334,9 @@ class SettingsWindow:
         import shutil
         from config import CONFIG_FILE
 
-        # Remove startup entry
+        # Remove startup entry and desktop shortcut
         set_startup(False)
+        delete_shortcut()
 
         # Delete models if requested
         if delete_models:

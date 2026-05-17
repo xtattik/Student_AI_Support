@@ -81,6 +81,21 @@ class FirstRunWizard:
 
 # ── Shortcut creation ──────────────────────────────────────────────────────────
 
+def delete_shortcut() -> None:
+    """Remove the Desktop shortcut if it exists. Silent no-op on Mac or dev builds."""
+    if not getattr(sys, "frozen", False) or platform.system() != "Windows":
+        return
+    try:
+        ps = (
+            '$shell = New-Object -ComObject WScript.Shell; '
+            '$lnk = Join-Path ($shell.SpecialFolders("Desktop")) "Student AI Support.lnk"; '
+            'if (Test-Path $lnk) { Remove-Item $lnk -Force }'
+        )
+        subprocess.run(["powershell", "-Command", ps], capture_output=True)
+    except Exception:
+        pass  # shortcut deletion is best-effort
+
+
 def create_shortcut() -> tuple[bool, str]:
     """Create a Desktop shortcut. Returns (success, message)."""
     if not getattr(sys, "frozen", False):
