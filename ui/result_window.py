@@ -41,7 +41,10 @@ class ResultWindow:
 
         self._textbox = ctk.CTkTextbox(self._win, wrap="word", font=ctk.CTkFont(size=13))
         self._textbox.pack(fill="both", expand=True, padx=16, pady=(12, 8))
-        self._textbox.configure(state="disabled")
+        # Show a placeholder while the model loads / warms up
+        self._textbox.configure(state="normal")
+        self._textbox.insert("end", "Loading AI model — please wait a moment…")
+        self._textbox.configure(state="disabled", text_color="gray")
 
         # Button row
         btn_frame = ctk.CTkFrame(self._win, fg_color="transparent")
@@ -81,12 +84,20 @@ class ResultWindow:
 
     def _stream_text(self) -> None:
         self._textbox.configure(state="normal")
+        first_chunk = True
         try:
             for chunk in self._generator:
+                if first_chunk:
+                    # Clear the loading placeholder and restore normal text colour
+                    self._textbox.delete("1.0", "end")
+                    self._textbox.configure(text_color=("gray10", "gray90"))
+                    first_chunk = False
                 self._textbox.insert("end", chunk)
                 self._textbox.see("end")
                 self._textbox.update_idletasks()
         except Exception as e:
+            if first_chunk:
+                self._textbox.delete("1.0", "end")
             self._textbox.insert("end", f"\n\n[Error: {e}]")
         finally:
             self._textbox.configure(state="disabled")

@@ -52,11 +52,17 @@ class TestWindow:
             text_color=WHITE,
         ).pack(side="left", padx=16, pady=10)
 
+        import llm_engine
+        loading_text = (
+            "Generating questions…"
+            if llm_engine.is_ready()
+            else "Loading AI model — please wait a moment…"
+        )
         self._loading = ctk.CTkLabel(
             self._win,
-            text="Generating questions...",
+            text=loading_text,
             font=ctk.CTkFont(size=14),
-            text_color=CHARCOAL,
+            text_color="gray",
         )
         self._loading.pack(expand=True)
 
@@ -64,6 +70,11 @@ class TestWindow:
 
     def _collect_and_render(self) -> None:
         try:
+            # Update label once the model starts producing tokens
+            # (it may have been showing "Loading AI model…" up to this point)
+            self._win.after(0, lambda: self._loading.configure(
+                text="Generating questions…", text_color="gray"
+            ))
             full_text = "".join(self._generator)
             questions = parse_questions(full_text)
             if questions:
