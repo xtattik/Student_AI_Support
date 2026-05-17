@@ -101,6 +101,8 @@ If the automatic download is blocked by your school network, you can download th
 ### Step 1 — Download the model file
 **[Download Qwen2.5-3B-Instruct-Q4_K_M.gguf](https://huggingface.co/bartowski/Qwen2.5-3B-Instruct-GGUF/resolve/main/Qwen2.5-3B-Instruct-Q4_K_M.gguf)** (~1.9 GB)
 
+page link: [Bartowski Qwen2.5-3B-Q4_K_M](https://huggingface.co/bartowski/Qwen2.5-3B-Instruct-GGUF/blob/main/Qwen2.5-3B-Instruct-Q4_K_M.gguf)
+
 This is the AI "brain" the app uses. Download it on a home connection (or any network that allows it).
 
 ### Step 2 — Place it in the models folder
