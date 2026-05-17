@@ -133,6 +133,10 @@ You can also find it in **Settings → Help** (top-right of the Settings window)
 
 ---
 
+## Help Videos
+[![Download and Installation on Windows](https://img.youtube.com/vi/O5jn89XVeuU/0.jpg)](https://www.youtube.com/watch?v=O5jn89XVeuU)
+
+---
 ## Troubleshooting
 
 **Nothing happens when I press the shortcut**
