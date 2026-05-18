@@ -136,15 +136,19 @@ You can also find it in **Settings → Help** (top-right of the Settings window)
 ## Help Videos
 **Download and Installation (windows)**
 
-[![Download and Installation on Windows](https://img.youtube.com/vi/O5jn89XVeuU/0.jpg)](https://www.youtube.com/watch?v=O5jn89XVeuU)
+[![Download and Installation on Windows](https://img.youtube.com/vi/1ydjV7k0t6g/0.jpg)](https://www.youtube.com/watch?v=1ydjV7k0t6g)
 
 **How to Use the AI Support App**
 
-[![Video Title](https://img.youtube.com/vi/2WoaX0XbweQ/0.jpg)](https://www.youtube.com/watch?v=2WoaX0XbweQ)
+[![Video Title](https://img.youtube.com/vi/MOdn9lz3Bdw/0.jpg)](https://www.youtube.com/watch?v=MOdn9lz3Bdw)
 
 **Settings and Options**
 
-[![Video Title](https://img.youtube.com/vi/RPjxSqgMhrA/0.jpg)](https://www.youtube.com/watch?v=RPjxSqgMhrA)
+[![Video Title](https://img.youtube.com/vi/inb8gS1hR6c/0.jpg)](https://www.youtube.com/watch?v=inb8gS1hR6c)
+
+**Manually Downloading the AI Model**
+
+[![Video Title](https://img.youtube.com/vi/8pShVS3jOvU/0.jpg)](https://www.youtube.com/watch?v=8pShVS3jOvU)
 
 ---
 ## Troubleshooting
