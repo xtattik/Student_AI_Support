@@ -39,8 +39,11 @@ class TrayIcon:
         )
         icon_kwargs = {}
         if platform.system() == "Darwin":
-            import AppKit  # type: ignore[import]
-            icon_kwargs["darwin_nsapplication"] = AppKit.NSApplication.sharedApplication()
+            try:
+                import AppKit  # type: ignore[import]
+                icon_kwargs["darwin_nsapplication"] = AppKit.NSApplication.sharedApplication()
+            except Exception:
+                pass  # fall back gracefully if pyobjc-framework-AppKit is unavailable
 
         self._icon = pystray.Icon(
             "StudentAI",
