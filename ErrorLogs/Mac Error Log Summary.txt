@@ -1,0 +1,93 @@
+What this log means
+This is a macOS crash report for StudentAI on your MacBook. The app launched, then immediately crashed because it tried to do a macOS UI operation from the wrong thread.
+
+Key error
+Application Specific Information: NSUpdateCycleInitialize() is called off the main thread.
+That is the main problem.
+
+Why that matters
+macOS UI code (AppKit) must run on the main thread only. If the app calls AppKit functions from a background thread, macOS usually kills the process and logs an error like this.
+
+What the report says
+Process: StudentAI
+Path: /Users/USER/Documents/StudentAI.app/Contents/MacOS/StudentAI
+Exception Type: EXC_BREAKPOINT (SIGTRAP)
+Termination Reason: Namespace SIGNAL, Code 5, Trace/BPT trap: 5
+That means the app hit a trap/breakpoint and was terminated by the OS.
+
+Crash details
+Triggered by Thread: 8
+Thread 8 has the failure inside AppKit:
+NSUpdateCycleInitialize
+then Python/Cocoa bridge code (_objc.cpython-312-darwin.so)
+the app is using Python and a macOS GUI layer
+The main thread (Thread 0) is not the one that crashed; Thread 8 is the one that did the forbidden UI work.
+
+Likely cause
+This looks like a bug in the app startup code where UI setup or update is happening on a worker thread instead of the main thread. That could happen if:
+
+the app uses tkinter or PyObjC and starts GUI updates from a second thread
+or a background thread is creating/updating a status item or window
+Bottom line
+This is not a normal install failure or missing file error. It is a programming/runtime crash caused by macOS UI threading rules.
+
+What to do next
+The app developer needs to make sure all AppKit/UI work runs on the main thread.
+If you want, I can help locate the likely offending code in this project.
+
+
+Error Exploration:
+Found several likely Mac-related triggers: tray icon runs in a thread, Tkinter UI may be started from background path, and first-run wizard has mac-specific startup logic. Now I’m verifying exact file contents around those areas.
+
+Likely cause
+The crash is very likely coming from the Mac menu bar/tray code, not from the core AI logic.
+
+What the code does
+In app.py:
+
+TrayIcon(...).start() is called during startup
+TrayIcon.start() in system_tray.py does:
+threading.Thread(target=self._icon.run, daemon=True).start()
+That means the tray/menu-bar icon event loop is being started on a background thread.
+
+Why that matters on macOS
+macOS UI code (AppKit) must run on the main thread.
+The crash report says:
+NSUpdateCycleInitialize() is called off the main thread.
+That is a classic macOS UI-thread error.
+On Windows, pystray uses a different backend and is more tolerant of being started on a background thread.
+On macOS, pystray likely invokes AppKit code for the menu bar icon, and that needs to be on the main thread.
+Strong suspicion
+The likely problematic file is:
+
+system_tray.py
+And the suspicious line is:
+
+threading.Thread(target=self._icon.run, daemon=True).start()
+Why this fits the crash report
+The crash happens in AppKit / NSUpdateCycleInitialize
+The stack includes the Python ObjC bridge
+The app is Python/Tk-based, but the crash is specifically AppKit-related
+pystray is the only code in this project that directly creates a macOS menu bar/status item
+Other related observations
+The main Tk app is launched correctly on the main thread in app.py
+TrayIcon callbacks like Settings call _on_settings(), but that already uses _root.after(0, ...) on the Tk main loop
+So the issue is not likely the callback handling itself, but the fact that pystray.Icon.run() is started in a worker thread
+What I would check next
+Confirm whether the app still crashes if the tray/menu-bar icon code is disabled
+If yes, then the tray thread is almost certainly the cause
+On macOS, the menu icon backend should be started on the main thread instead of threading.Thread(...)
+If you want, I can now point to the exact minimal code change that would make pystray run in a Mac-safe way without changing the app behavior elsewhere.
+
+Update made
+Edited system_tray.py
+Changed tray startup to use pystray.Icon.run_detached() instead of launching self._icon.run() inside a background thread
+Added Mac-specific integration by passing darwin_nsapplication=AppKit.NSApplication.sharedApplication() when platform.system() == "Darwin"
+Why this fixes the issue
+On macOS, pystray.Icon.run() must run on the main thread, and the crash report showed AppKit being called off the main thread
+run_detached() is the correct pystray integration mode when another GUI main loop (Tkinter/CustomTkinter) is already active
+This avoids the Mac-only NSUpdateCycleInitialize crash while keeping tray support working
+Validation
+system_tray.py compiles successfully
+Workspace diagnostics now report no errors in that file
+Completed: Update tray icon implementation for Mac compatibility (7/7)

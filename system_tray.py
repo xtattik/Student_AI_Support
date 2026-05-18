@@ -1,3 +1,4 @@
+import platform
 import threading
 import webbrowser
 import pystray
@@ -12,8 +13,8 @@ class TrayIcon:
     def __init__(self, on_settings: callable, on_quit: callable):
         self._on_settings = on_settings
         self._on_quit = on_quit
-        self._icon: pystray.Icon | None = None
-        self._update_result: dict | None = None
+        self._icon = None
+        self._update_result = None
 
     def start(self) -> None:
         try:
@@ -36,13 +37,19 @@ class TrayIcon:
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("Quit", lambda: self._quit()),
         )
+        icon_kwargs = {}
+        if platform.system() == "Darwin":
+            import AppKit  # type: ignore[import]
+            icon_kwargs["darwin_nsapplication"] = AppKit.NSApplication.sharedApplication()
+
         self._icon = pystray.Icon(
             "StudentAI",
             img,
             "Student AI Support\nHighlight text, then press Ctrl+Shift+`",
             menu,
+            **icon_kwargs,
         )
-        threading.Thread(target=self._icon.run, daemon=True).start()
+        self._icon.run_detached()
 
     def _check_updates_tray(self) -> None:
         def _run():
