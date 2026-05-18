@@ -61,21 +61,40 @@ Double-click the zip file — it will extract **StudentAI.app**
 ### Step 3 — Open it (important — read carefully)
 Because the app isn't signed with a paid Apple certificate, macOS will block it the first time.
 
+Depending on the specific version of macOS you have, either of these two options are likely required:
 **Do this once:**
 1. **Right-click** StudentAI.app (or two-finger tap on trackpad)
 2. Click **Open**
 3. Click **Open** again in the warning dialog
 
-After this, it will open normally every time.
+After this, it should open normally every time.
+
+If two fingers/right-click does not work:
+1. Go to Apple Menu
+2. Settings
+3. Privacy and Security
+4. Scroll down until you find StudentAI
+5. Select "Open Anyway"
 
 ### Step 4 — Allow keyboard access (first time only)
 The app needs permission to detect your keyboard shortcut from any app.
+Often the first time you run the app a permission prompt appears:
 
-When the permission prompt appears:
+**When the permission prompt appears:**
 1. Click **Open System Settings**
 2. Find **Student AI Support** in the list
 3. Toggle it **on**
 4. Switch back to the app
+
+**Alternatively, if you dismiss that or it does not appear:**
+To give an app permission to monitor your keyboard (Input Monitoring), grant the permission in your Mac's Privacy & Security settings. 
+
+1. Click the Apple menu (top-left) and select System Settings (or System Preferences on older macOS versions).
+2. Click Privacy & Security in the sidebar.
+3. Click Input Monitoring.
+4. Locate StudentAI in the list and toggle its switch to the On (blue) position. 
+
+Note: If the app isn't listed, open the app and try the feature that requires keyboard access (e.g., setting up a hotkey). This usually triggers a prompt that will add the app to the list. 
 
 ### Step 5 — Download the AI model (first time only)
 A setup window will appear showing where the model will be saved. You can change this location if you like, then click **Start Download** (~1.9 GB). It only happens once.
